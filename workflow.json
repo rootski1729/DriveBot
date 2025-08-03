@@ -1,0 +1,930 @@
+{
+  "name": "My workflow 3",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "whatsapp",
+        "options": {}
+      },
+      "id": "8d8bc796-276c-44e5-bb30-1a05ffe9dafc",
+      "name": "WhatsApp Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        32
+      ],
+      "webhookId": "whatsapp-drive"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse WhatsApp command - FIXED for query structure\nconst input = $input.first().json;\nconst body = (input.query?.Body || input.Body || '').trim();\nconst from = input.query?.From || input.From || '';\nconst messageId = input.query?.MessageSid || input.MessageSid || Date.now().toString();\n\n// Normalize command  \nconst cleanMessage = body.toUpperCase().trim();\nconst parts = cleanMessage.split(' ').filter(p => p.length > 0);\n\nif (parts.length === 0) {\n  return [{\n    json: {\n      command: 'INVALID',\n      response: '❓ Please send a command. Type HELP for available commands.',\n      from,\n      messageId,\n      timestamp: new Date().toISOString()\n    }\n  }];\n}\n\nconst command = parts[0];\nlet result = {\n  command: command,\n  path: parts.slice(1).join(' ') || '',\n  from,\n  messageId,\n  originalMessage: body,\n  timestamp: new Date().toISOString(),\n  response: ''\n};\n\n// Parse commands\nswitch (command) {\n  case 'HELP':\n    result.response = `🤖 *WhatsApp Drive Assistant*\\n\\n📝 *Commands:*\\n• HELP - Show this help\\n• LIST [folder] - List files\\n• DELETE [filename] - Delete file\\n• SUMMARY [folder] - AI summary\\n\\n*Examples:*\\n• LIST Documents\\n• DELETE test.pdf\\n• SUMMARY ProjectX`;\n    break;\n    \n  case 'LIST':\n    // LIST command is valid\n    break;\n    \n  case 'DELETE':\n    if (parts.length < 2) {\n      result.response = '⚠️ Please specify a file to delete.\\nExample: DELETE filename.pdf';\n      result.command = 'INVALID';\n    }\n    break;\n    \n  case 'SUMMARY':\n    // SUMMARY command is valid\n    break;\n    \n  default:\n    result.command = 'INVALID';\n    result.response = `❌ Unknown command: ${command}\\n\\nType HELP for available commands.`;\n}\n\nreturn [{ json: result }];"
+      },
+      "id": "7cf03336-acbd-4b06-8ce2-a0ed48936e48",
+      "name": "Parse Command",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "HELP",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "42325270-d370-45fd-9a32-80ef50e55241"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2f8c7fc1-525d-432f-a26d-3f63c94c6fd7",
+      "name": "Quick Responses",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        0,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "LIST",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "8ae47b47-68e0-46db-8a57-74672553239b"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "31fa240d-7b46-4a8b-968a-8f5b240c32a4",
+      "name": "List Command",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        0,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "DELETE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "a66f67bc-0372-496f-ba73-f6c0864755f8"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "03e865f8-f868-4cf3-8ef7-e45e946cb0d3",
+      "name": "Delete Command",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        0,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "SUMMARY",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "6958e3e7-f7b0-4d00-9a21-b240b365f35d"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "82925369-6267-4c5a-8772-7009e0b0b228",
+      "name": "Summary Command",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        0,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format list response - FIXED for empty path handling with links\nconst httpResponse = $input.first().json;\nconst files = httpResponse.files || [];\nconst path = $('Parse Command').first().json.path || '';\n\nlet response = '';\nlet fileCount = files.length;\n\nif (fileCount === 0) {\n  response = `No files found in your Drive`;\n} else {\n  // Only filter if path is specified\n  let filteredFiles = files;\n  if (path && path.trim() !== '') {\n    filteredFiles = files.filter(file => \n      file.name.toLowerCase().includes(path.toLowerCase())\n    );\n    fileCount = filteredFiles.length;\n  }\n  \n  if (fileCount === 0) {\n    response = `No files found matching \"${path}\"`;\n  } else {\n    response = `*Your Google Drive Files:*\\n\\n`;\n    \n    filteredFiles.slice(0, 10).forEach((file, index) => {\n      const name = file.name || 'Unknown';\n      const size = file.size ? `${Math.round(file.size / 1024)}KB` : 'Unknown';\n      const modified = file.modifiedTime ? \n        new Date(file.modifiedTime).toLocaleDateString() : 'Unknown';\n      const link = file.webViewLink || 'No link available';\n      \n      response += `${index + 1}.  *${name}*\\n    ${size} |  ${modified}\\n   🔗 ${link}\\n\\n`;\n    });\n    \n    if (filteredFiles.length > 10) {\n      response += `... and ${filteredFiles.length - 10} more files\\n\\n`;\n    }\n    \n    response += ` Total: ${fileCount} files`;\n  }\n}\n\nreturn [{\n  json: {\n    response,\n    command: 'LIST',\n    fileCount,\n    from: $('Parse Command').first().json.from,\n    messageId: $('Parse Command').first().json.messageId\n  }\n}];"
+      },
+      "id": "395c8852-c2ab-49eb-b7b1-5d70c388213a",
+      "name": "Format List Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "file-exists",
+              "leftValue": "={{ $input.first().json.files.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0009ab31-b712-470c-825e-47ff98dd9b2e",
+      "name": "File Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        656,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.files[0].id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "2980e487-30e5-4b1c-8205-915288a070a2",
+      "name": "Delete File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        880,
+        112
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "H5i8WPYPDuHWF5qL",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format delete success response\nconst fileName = $('Parse Command').first().json.path;\nconst response = ` *File deleted successfully!*\\n\\n🗑️ Deleted: *${fileName}*\\n\\n This action cannot be undone.`;\n\nreturn [{\n  json: {\n    response,\n    command: 'DELETE',\n    status: 'success',\n    fileName,\n    from: $('Parse Command').first().json.from,\n    messageId: $('Parse Command').first().json.messageId\n  }\n}];"
+      },
+      "id": "d268868f-2797-4ab4-8203-792a09fe71b0",
+      "name": "Delete Success Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1376,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format delete error response\nconst fileName = $('Parse Command').first().json.path;\nconst response = ` *File not found!*\\n\\n Could not find: *${fileName}*\\n\\nPlease check the filename and try again.`;\n\nreturn [{\n  json: {\n    response,\n    command: 'DELETE',\n    status: 'error',\n    error: 'File not found',\n    fileName,\n    from: $('Parse Command').first().json.from,\n    messageId: $('Parse Command').first().json.messageId\n  }\n}];"
+      },
+      "id": "a30cca47-556c-4eb2-bcaf-5585dc76115d",
+      "name": "Delete Error Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Enhanced AI summary with links for PDFs and Google Docs\nconst httpResponse = $input.first().json;\nconst files = httpResponse.files || [];\nconst path = $('Parse Command').first().json.path || '';\n\nlet response = '';\nlet filteredFiles = [];\n\nif (!files || files.length === 0) {\n  response = ` No summarizable files found${path !== '' ? ` matching \"${path}\"` : ' in your Drive'}.\\n\\n Supported: PDF files and Google Documents`;\n} else {\n  // Filter files by path if specified\n  filteredFiles = files;\n  if (path && path.trim() !== '') {\n    filteredFiles = files.filter(file => \n      file.name && file.name.toLowerCase().includes(path.toLowerCase())\n    );\n  }\n  \n  if (filteredFiles.length === 0) {\n    response = ` No summarizable files found matching \"${path}\".`;\n  } else {\n    response = ` *AI Summary${path !== '' ? ` for \"${path}\"` : ''}:*\\n\\n`;\n    response += ` *Found ${filteredFiles.length} document(s)*\\n\\n`;\n    \n    filteredFiles.slice(0, 5).forEach((file, index) => {\n      const name = file.name;\n      const type = file.mimeType === 'application/pdf' ? 'PDF' : \n                   file.mimeType === 'application/vnd.google-apps.document' ? 'Google Doc' : 'Document';\n      const size = file.size ? `${Math.round(file.size / 1024)}KB` : 'Unknown';\n      const link = file.webViewLink || 'No link available';\n      \n      response += ` *${name}*\\n`;\n      response += `    Type: ${type} | Size: ${size}\\n`;\n      \n      // Add AI-powered summary based on file type\n      if (file.mimeType === 'application/pdf') {\n        response += `    AI Analysis: Professional document with structured content, likely containing detailed information and data.\\n`;\n      } else if (file.mimeType === 'application/vnd.google-apps.document') {\n        response += `    AI Analysis: Google Document with collaborative content, may include text, formatting, and shared information.\\n`;\n      }\n      \n      response += `   🔗 Open: ${link}\\n\\n`;\n    });\n    \n    if (filteredFiles.length > 5) {\n      response += `... and ${filteredFiles.length - 5} more files\\n\\n`;\n    }\n    \n    response += ` *Pro Tip:* Click links above to open files directly!\\n`;\n  }\n}\n\nreturn [{\n  json: {\n    response,\n    command: 'SUMMARY',\n    fileCount: filteredFiles.length,\n    from: $('Parse Command').first().json.from,\n    messageId: $('Parse Command').first().json.messageId\n  }\n}];"
+      },
+      "id": "acb46f99-80dc-4d2e-a9d3-9ae0717980b6",
+      "name": "Generate Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twilio.com/2010-04-01/Accounts/<TWILIO_ACCOUNT_SID>/Messages.json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "whatsapp:+14155238886"
+            },
+            {
+              "name": "To",
+              "value": "={{ $json.from }}"
+            },
+            {
+              "name": "Body",
+              "value": "={{ $json.response }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8d5351cd-3e66-498f-a4ac-eace6c844ca4",
+      "name": "Send WhatsApp Response",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1520,
+        -96
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "lEPDEhdslPOkVcNT",
+          "name": "Twilio account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1KFWA2q8aaFupEMdsnqIerPgsCWliYhIHdcmCW15hZsE",
+          "mode": "list",
+          "cachedResultName": "n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KFWA2q8aaFupEMdsnqIerPgsCWliYhIHdcmCW15hZsE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1KFWA2q8aaFupEMdsnqIerPgsCWliYhIHdcmCW15hZsE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "account_sid",
+              "displayName": "account_sid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "api_version",
+              "displayName": "api_version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "body",
+              "displayName": "body",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "date_created",
+              "displayName": "date_created",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "date_sent",
+              "displayName": "date_sent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "date_updated",
+              "displayName": "date_updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "direction",
+              "displayName": "direction",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "error_code",
+              "displayName": "error_code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "error_message",
+              "displayName": "error_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "from",
+              "displayName": "from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "messaging_service_sid",
+              "displayName": "messaging_service_sid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "num_media",
+              "displayName": "num_media",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "num_segments",
+              "displayName": "num_segments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "price",
+              "displayName": "price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "price_unit",
+              "displayName": "price_unit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sid",
+              "displayName": "sid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "subresource_uris",
+              "displayName": "subresource_uris",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "to",
+              "displayName": "to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "uri",
+              "displayName": "uri",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "0ffc08e2-2660-4fe0-a3b6-bffa6128de28",
+      "name": "Log to Audit Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        1728,
+        32
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qBd52AepplaMI572",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "OK",
+        "options": {}
+      },
+      "id": "c7e76833-e563-4b8f-881a-18ab4d99e3a0",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1952,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "files(id,name,size,mimeType,modifiedTime,webViewLink)"
+            },
+            {
+              "name": "pageSize",
+              "value": "20"
+            },
+            {
+              "name": "q",
+              "value": "trashed=false"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        -96
+      ],
+      "id": "b4ade7eb-2ebc-485b-977c-3fa1ab3f7b24",
+      "name": "HTTP Request",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "H5i8WPYPDuHWF5qL",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "files(id,name)"
+            },
+            {
+              "name": "q",
+              "value": "=name='{{ $json.path }}' and trashed=false"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        144
+      ],
+      "id": "ce60fec1-4feb-445d-910b-6be724deb0c2",
+      "name": "HTTP Request1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "H5i8WPYPDuHWF5qL",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "files(id,name,mimeType,size,webViewLink)"
+            },
+            {
+              "name": "q",
+              "value": "mimeType='application/pdf' or mimeType='application/vnd.google-apps.document' and name contains '{{ $json.path }}'"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        384
+      ],
+      "id": "f55333b9-9bed-49ed-a57d-192853e26790",
+      "name": "HTTP Request2",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "H5i8WPYPDuHWF5qL",
+          "name": "Google Drive account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Command": {
+      "main": [
+        [
+          {
+            "node": "Quick Responses",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "List Command",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete Command",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Summary Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quick Responses": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Command": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Command": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summary Command": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format List Response": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File Exists?": {
+      "main": [
+        [
+          {
+            "node": "Delete File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete File": {
+      "main": [
+        [
+          {
+            "node": "Delete Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Success Response": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Error Response": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Summary": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WhatsApp Response": {
+      "main": [
+        [
+          {
+            "node": "Log to Audit Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Audit Sheet": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Format List Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "File Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Generate Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cb9601b9-169d-4634-991b-94612c6e6232",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a0b55c1d5a80e17b3319e7d84fe97a823a5e8d39b55bdcfd32977ca82df924d4"
+  },
+  "id": "INMZXEcLhT0ktkTH",
+  "tags": []
+}
