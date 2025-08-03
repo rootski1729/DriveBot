@@ -1,17 +1,17 @@
-# WhatsApp Drive Assistant 🤖📁
+# WhatsApp Drive Assistant
 
 A powerful n8n workflow that turns WhatsApp into a Google Drive command center. Send simple text commands to list, delete, move, and summarize documents in your Google Drive - all from WhatsApp!
 
-## 🌟 Features
+## Features
 
-- **📱 WhatsApp Integration**: Use Twilio Sandbox for WhatsApp messaging
-- **🗂️ Google Drive Operations**: List, delete, move files with simple commands
-- **🤖 AI Summarization**: Get bullet-point summaries of documents using free Cohere AI
-- **📊 Audit Logging**: Track all operations in Google Sheets
-- **🔒 Safety Guards**: Built-in protection against accidental mass deletion
-- **🚀 One-Click Deployment**: Ready-to-use Docker setup
+- **WhatsApp Integration**: Use Twilio Sandbox for WhatsApp messaging
+- **Google Drive Operations**: List, delete, move files with simple commands
+- **AI Summarization**: Get bullet-point summaries of documents using free Cohere AI
+- **Audit Logging**: Track all operations in Google Sheets
+- **Safety Guards**: Built-in protection against accidental mass deletion
+- **One-Click Deployment**: Ready-to-use Docker setup
 
-## 📋 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Docker Desktop installed
@@ -19,14 +19,14 @@ A powerful n8n workflow that turns WhatsApp into a Google Drive command center. 
 - Twilio Account (free tier)
 - Cohere AI Account (free tier)
 
-### 🚀 Fast Setup (5 minutes)
+### Fast Setup (5 minutes)
 
 1. **Clone and Setup**
    ```bash
    git clone <repository-url>
    cd # WhatsApp Google Drive Assistant - Complete Setup Guide
 
-## 🚀 Quick Start Commands (PowerShell)
+## Quick Start Commands (PowerShell)
 
 ### 1. Initial Setup
 ```powershell
@@ -46,7 +46,7 @@ docker-compose up -d
 - Create admin account
 - Import workflow.json
 
-## 📋 Prerequisites Setup
+## Prerequisites Setup
 
 ### 1. Twilio WhatsApp Sandbox
 1. Go to https://console.twilio.com/
@@ -68,19 +68,19 @@ docker-compose up -d
 2. Go to Settings → Access Tokens
 3. Create new token → Copy to `.env`
 
-## 🎯 Command Syntax
+## Command Syntax
 
 Send these commands via WhatsApp:
 
 ```
-📋 LIST ProjectX              → List files in ProjectX folder
-🗑️ CONFIRM DELETE file.pdf    → Delete file (requires CONFIRM)
-📁 MOVE source.pdf Archive    → Move file to Archive folder  
-📝 SUMMARY ProjectX           → Get folder summary with AI
-❓ HELP                       → Show command help
+LIST ProjectX              → List files in ProjectX folder
+CONFIRM DELETE file.pdf    → Delete file (requires CONFIRM)
+MOVE source.pdf Archive    → Move file to Archive folder  
+SUMMARY ProjectX           → Get folder summary with AI
+HELP                       → Show command help
 ```
 
-## 🔧 Advanced Configuration
+##  Advanced Configuration
 
 ### Production Database (Optional)
 Replace SQLite with PostgreSQL:
@@ -107,7 +107,7 @@ ngrok http 5678
 # Or deploy to cloud with domain
 ```
 
-## 🛡️ Security Features
+## Security Features
 
 - **DELETE Protection**: Requires CONFIRM keyword
 - **Audit Logging**: All operations logged with timestamp
@@ -115,7 +115,7 @@ ngrok http 5678
 - **Input Validation**: Sanitized commands
 - **Rate Limiting**: Built into n8n
 
-## 📊 Monitoring & Debugging
+## Monitoring & Debugging
 
 ### View Logs
 ```powershell
@@ -132,7 +132,7 @@ docker-compose logs -f
 Invoke-RestMethod -Uri "http://localhost:5678/webhook/whatsapp" -Method POST -Body '{"Body":"HELP","From":"whatsapp:+1234567890"}' -ContentType "application/json"
 ```
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Common Issues:
 
@@ -151,7 +151,7 @@ docker-compose down -v
 docker-compose up -d
 ```
 
-## 📱 Demo Script
+## Demo Script
 
 1. **Setup**: Send "HELP" → Get command list
 2. **List**: Send "LIST Documents" → See files  
@@ -159,7 +159,7 @@ docker-compose up -d
 4. **Move**: Send "MOVE old.pdf Archive" → File moved
 5. **Delete**: Send "CONFIRM DELETE temp.pdf" → File deleted
 
-## 🎥 Video Demo Points
+## Video Demo Points
 
 1. Show WhatsApp commands in action
 2. Demonstrate safety features (CONFIRM DELETE)
@@ -167,7 +167,7 @@ docker-compose up -d
 4. Show Google Drive changes in real-time
 5. Explain audit trail and logging
 
-## 🔄 Backup & Recovery
+## Backup & Recovery
 
 ```powershell
 # Backup workflow
@@ -179,7 +179,7 @@ docker-compose exec postgres pg_dump -U n8n_user n8n > backup/db_backup.sql
 
 ---
 
-**⚡ Quick Commands Summary:**
+**Quick Commands Summary:**
 ```powershell
 # Start
 docker-compose up -d
@@ -219,7 +219,7 @@ docker-compose down -v && docker-compose up -d
    - Configure credentials in n8n
    - Activate workflow
 
-## 💬 Command Reference
+## Command Reference
 
 Send these messages to your WhatsApp sandbox number:
 
@@ -231,7 +231,7 @@ Send these messages to your WhatsApp sandbox number:
 | `SUMMARY /folder` | AI summary of documents | `SUMMARY ProjectX` |
 | `HELP` | Show help message | `HELP` |
 
-## 🛠️ Architecture
+##  Architecture
 
 ```
 WhatsApp → Twilio → n8n Webhook → Command Parser → Google Drive API
@@ -241,7 +241,7 @@ WhatsApp → Twilio → n8n Webhook → Command Parser → Google Drive API
                               Audit Log (Google Sheets) → WhatsApp Response
 ```
 
-## 📦 What's Included
+##  What's Included
 
 - `workflow.json` - Complete n8n workflow with all nodes
 - `docker-compose.yml` - Docker setup for n8n
@@ -249,7 +249,7 @@ WhatsApp → Twilio → n8n Webhook → Command Parser → Google Drive API
 - Setup scripts for Windows (`setup.ps1`) and Linux/Mac (`setup.sh`)
 - Start/stop scripts for easy management
 
-## 🔧 Detailed Setup Instructions
+## Detailed Setup Instructions
 
 ### 1. Twilio WhatsApp Sandbox
 1. Go to [Twilio Console](https://console.twilio.com/)
@@ -276,7 +276,7 @@ WhatsApp → Twilio → n8n Webhook → Command Parser → Google Drive API
 2. Get free API key from dashboard
 3. Free tier includes 100 requests/month
 
-## 🚀 Deployment Options
+##  Deployment Options
 
 ### Local Development
 ```bash
@@ -290,7 +290,7 @@ WhatsApp → Twilio → n8n Webhook → Command Parser → Google Drive API
 - Set up SSL/TLS certificates
 - Configure firewall rules
 
-## 🔒 Security Features
+## Security Features
 
 - **Input Validation**: All commands are parsed and validated
 - **Rate Limiting**: Built into Twilio and Cohere APIs
@@ -298,7 +298,7 @@ WhatsApp → Twilio → n8n Webhook → Command Parser → Google Drive API
 - **OAuth2**: Secure Google Drive access
 - **Webhook Validation**: Twilio signature verification
 
-## 🎯 Use Cases
+## Use Cases
 
 - **Remote File Management**: Access Drive files from anywhere via WhatsApp
 - **Team Collaboration**: Share file summaries quickly
@@ -306,35 +306,14 @@ WhatsApp → Twilio → n8n Webhook → Command Parser → Google Drive API
 - **File Organization**: Move and organize files on the go
 - **Quick File Lookup**: Find files without opening Drive
 
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **n8n not starting**
-   ```bash
-   docker-compose logs n8n
-   ```
-
-2. **Webhook not receiving messages**
-   - Check Twilio webhook URL configuration
-   - Verify ngrok or public URL setup
-
-3. **Google Drive authentication**
-   - Re-authenticate OAuth2 in n8n
-   - Check API quotas in Google Console
-
-4. **AI summaries not working**
-   - Verify Cohere API key
-   - Check API usage limits
-
-## 📊 Monitoring
+## Monitoring
 
 - **n8n Logs**: `docker-compose logs -f`
 - **Execution History**: Available in n8n interface
 - **Audit Trail**: Google Sheets with all operations
 - **Health Check**: `http://localhost:5678/healthz`
 
-## 🔄 Workflow Details
+##  Workflow Details
 
 The n8n workflow includes:
 - **Webhook Trigger**: Receives WhatsApp messages
@@ -346,34 +325,7 @@ The n8n workflow includes:
 - **Audit Logger**: Records all operations
 - **Error Handling**: Graceful error responses
 
-## 🤝 Contributing
 
-1. Fork the repository
-2. Create feature branch
-3. Make changes
-4. Test thoroughly
-5. Submit pull request
-
-## 📄 License
+##  License
 
 MIT License - see LICENSE file for details
-
-## 🆘 Support
-
-- **Issues**: Use GitHub Issues for bugs
-- **Discussions**: GitHub Discussions for questions
-- **Documentation**: Check n8n docs for workflow questions
-
-## 🔮 Future Enhancements
-
-- [ ] Natural language processing for commands
-- [ ] File sharing via WhatsApp
-- [ ] Batch operations
-- [ ] Advanced search capabilities
-- [ ] Integration with other cloud storage
-- [ ] Voice message support
-- [ ] Multi-language support
-
----
-
-**⚡ Quick Demo**: Send `HELP` to your WhatsApp sandbox number to get started!
